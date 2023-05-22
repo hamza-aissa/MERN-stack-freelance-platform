@@ -13,8 +13,7 @@ export const extendedApislice = todoApi.injectEndpoints({
       keepUnusedDataFor: 5,
       transformResponse: (response) => {
         // Use todoAdapter.setAll to set the initial state of the todos
-        console.log("get todo querry test in todo slice :");
-        console.log("response:  ", response);
+
         const loadedTodos = response;
         console.log("loadedtodos:  ", loadedTodos);
 

@@ -10,6 +10,17 @@ const TodoPostCard = ({ id, todoId }) => {
   if (!todo) {
     return null; // Handle the case when the todo is not found
   } else {
+    const dateString = todo.date;
+    const date = new Date(dateString);
+
+    const options = {
+      month: "short", // Abbreviated month name
+      day: "numeric", // Day of the month (numeric)
+      hour: "numeric", // Hour (numeric)
+      minute: "numeric", // Minute (numeric)
+    };
+
+    const formattedDate = date.toLocaleString("en-US", options);
     return (
       <div key={id} className="rounded-xl bg-post border max-w-md ">
         <div className="flex items-center px-4 py-3">
@@ -18,10 +29,10 @@ const TodoPostCard = ({ id, todoId }) => {
             src="https://picsum.photos/id/1027/150/150"
           />
           <div className="ml-3 ">
-            <span className="text-sm font-semibold antialiased block leading-tight">
-              {todo.date}
+            <span className="text-sm font-semibold antialiased block leading-tight text-white ">
+              {todo.user}
             </span>
-            <span className="text-gray-600 text-xs block">{todo.user}</span>
+            <span className=" text-xs block text-white">{formattedDate}</span>
           </div>
         </div>
         <img src="https://picsum.photos/id/244/900/900" />

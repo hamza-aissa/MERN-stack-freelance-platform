@@ -1,9 +1,12 @@
 const { Todo } = require("../models/UserModel");
+const mongoose = require("mongoose");
 
 // Get all todos
 const getAllTodos = async (req, res) => {
   try {
-    const todos = await Todo.find({ user: req.user._id });
+    // const todos = await Todo.findById({ user: req.user._id });
+    const todos = await Todo.find({ userId: req.user._id });
+    console.log("todos from     ", req.user, "   ", todos);
     res.status(200).json(todos);
   } catch (err) {
     console.error(err);
@@ -16,7 +19,8 @@ const addTodo = async (req, res) => {
   try {
     const newTodo = new Todo({
       description: req.body.description,
-      user: req.user._id,
+      userId: req.user._id,
+      user: req.email,
     });
     const savedTodo = await newTodo.save();
     res.status(201).json(savedTodo);
