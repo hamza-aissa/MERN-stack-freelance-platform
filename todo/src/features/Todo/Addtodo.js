@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useAddNewTodoMutation } from "./todoSlice";
-
+import { store } from "../../app/store";
 const Addtodo = () => {
   const dispatch = useDispatch();
   const [addNewTodo, { isLoading }] = useAddNewTodoMutation();
-
-  const [body, setbody] = useState("");
+  const [Body, setbody] = useState("");
   const submit = async () => {
     console.log("clicked");
     try {
-      await dispatch(addNewTodo({ body })).unwrap();
+      console.log("addNewTodo result (before unwrap):", addNewTodo(Body));
+      const result = await addNewTodo(Body).unwrap();
+      console.log("addNewTodo result (after unwrap):", result);
       setbody("");
       console.log("addtodo success");
     } catch (error) {

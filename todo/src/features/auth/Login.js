@@ -1,36 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginAsync } from "./authslice";
-
+import { useLoginMutation } from "./authapiSlice";
+import { setCredentials } from "./authslice";
 const Login = () => {
   const dispatch = useDispatch();
-  const status = useSelector((state) => state.auth.status);
-  const token = useSelector((state) => state.auth.token);
-  const error = useSelector((state) => state.auth.error);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(loginAsync({ email, password }));
-  };
+  const [errMsg, setErrMsg] = useState("");
+  const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  useEffect(() => {
-    console.log(status);
-    if (status === "idle" && token) {
-      console.log("token exists, navigating to Home...");
+    try {
+      const userData = await login({ email, password }).unwrap();
+      dispatch(setCredentials({ ...userData, email }));
+      console.log("got user data", userData, "prepare navigation");
+      setEmail("");
+      setPassword("");
       navigate("/Home");
-    } else {
-      console.log("wrong data");
+    } catch (err) {
+      if (!err?.originalStatus) {
+        // isLoading: true until timeout occurs
+        setErrMsg("No Server Response");
+      } else if (err.originalStatus === 400) {
+        setErrMsg("Missing Username or Password");
+      } else if (err.originalStatus === 401) {
+        setErrMsg("Unauthorized");
+      } else {
+        setErrMsg("Login Failed");
+      }
+      // errRef.current.focus();
     }
-  }, [status, token, navigate]);
+  };
 
   return (
     <section className="bg-gray-200 dark:bg-gray-900">
-      {status === "loading" && <div>Loading...</div>}
-      {status === "error" && <div>{error}</div>}
+      {isLoading && <div>Loading...</div>}
+      {errMsg && <div>{errMsg}</div>}
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">

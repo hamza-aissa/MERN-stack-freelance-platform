@@ -15,15 +15,14 @@ const getAllTodos = async (req, res) => {
 const addTodo = async (req, res) => {
   try {
     const newTodo = new Todo({
-      title: req.body.title,
-      body: req.body.body,
+      description: req.body.description,
       user: req.user._id,
     });
     const savedTodo = await newTodo.save();
     res.status(201).json(savedTodo);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", err });
   }
 };
 
