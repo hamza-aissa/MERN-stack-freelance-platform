@@ -20,7 +20,7 @@ const registeruser = async (req, res) => {
     });
 
     await newUser.save();
-
+    console.log("saving..");
     res.status(200).send({ message: "registered" });
     console.log(newUser);
   } catch (err) {

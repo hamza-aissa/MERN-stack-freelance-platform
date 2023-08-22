@@ -11,6 +11,16 @@ const NonAuthenticatedNavbar = () => {
 
         <ul className="flex justify-between gap-2">
           <li>
+            <Link to="" className="">
+              Browse Tasks
+            </Link>
+          </li>
+          <li>
+            <Link to="" className="">
+              Post a Task
+            </Link>
+          </li>
+          <li>
             <Link
               to="/register"
               className="h-[20px] w-[30px] bg-g rounded-[30px] px-4 py-2"

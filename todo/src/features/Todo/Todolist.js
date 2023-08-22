@@ -1,30 +1,26 @@
-import React from "react";
-import { selectTodoById, selectAllTodos, useGetTodosQuery } from "./todoSlice";
+import { useGetTodosForUserQuery } from "../Todo/todoSlice";
 import TodoPostCard from "./TodoPostCard";
-import { useSelector } from "react-redux";
-const Todolist = () => {
-  const { isLoading, isSuccess, isError, error } = useGetTodosQuery();
 
-  const orderedTodoIds = useSelector(selectAllTodos);
-  console.log(orderedTodoIds);
-
-  let List;
+const Todolist = ({ user }) => {
+  const { data, isLoading, isError, error } = useGetTodosForUserQuery(user);
   if (isLoading) {
-    List = <p>Loading...</p>;
-  } else if (isSuccess) {
-    List = orderedTodoIds.map((todo) => (
-      <TodoPostCard id={todo._id} todoId={todo._id} />
-    ));
-  } else if (isError) {
-    List = <p>{error?.message}</p>;
-  } else {
-    List = "TODO IS EMPTY NOW";
+    return <p className="text-white">Loading...</p>;
   }
 
-  return (
-    // map over todos
-    <div className="flex flex-col space-y-5">{List}</div>
-  );
-};
+  if (isError) {
+    return <p className="text-white">Error loading {user} todos</p>;
+  }
 
+  if (data) {
+    return (
+      <div>
+        {Object.values(data.entities).map((todo) => (
+          <TodoPostCard id={todo._id} todo={todo} />
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+};
 export default Todolist;

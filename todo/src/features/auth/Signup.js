@@ -1,29 +1,49 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { signupAsync } from "./authslice";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useSignupMutation } from "./authapiSlice";
+import { setCredentials } from "./authslice";
+
 const Signup = () => {
   const dispatch = useDispatch();
-  const status = useSelector((state) => state.auth.status);
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setconfirmPassword] = useState("");
   const [error, seterror] = useState(false);
+  const [signup, { isLoading }] = useSignupMutation();
+  const navigate = useNavigate();
+
   const handleData = () => {
     if (confirmpassword !== password) {
       seterror(true);
     }
   };
-  const handleSubmit = (e) => {
-    if (error) {
-      e.preventDefault();
-      dispatch(signupAsync({ email, password }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const userData = await signup({ email, password }).unwrap();
+      dispatch(setCredentials({ ...userData, email }));
+      setEmail("");
+      setPassword("");
       navigate("/login");
+    } catch (err) {
+      if (!err?.originalStatus) {
+        seterror("No Server Response");
+      } else if (err.originalStatus === 400) {
+        seterror("Missing Username or Password");
+      } else if (err.originalStatus === 401) {
+        seterror("Unauthorized");
+      } else {
+        seterror("Signup Failed");
+      }
     }
   };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
+      {isLoading && <div>Loading...</div>}
+      {error && <div>{error}</div>}
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">

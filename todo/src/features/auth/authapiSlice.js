@@ -9,7 +9,14 @@ export const authApiSlice = todoApi.injectEndpoints({
         body: { ...credentials },
       }),
     }),
+    signup: builder.mutation({
+      query: (userData) => ({
+        url: "/register",
+        method: "POST",
+        body: userData,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApiSlice;
+export const { useLoginMutation, useSignupMutation } = authApiSlice;

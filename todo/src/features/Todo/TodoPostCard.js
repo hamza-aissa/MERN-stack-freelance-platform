@@ -1,12 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import T from "../../assets/delete.svg";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import edit from "../../assets/edit.svg";
+import { selectCurrentUser } from "../auth/authslice";
 import { selectTodoById } from "./todoSlice";
+import FollowUserButton from "../Users/FollowUserButton";
+import Enlist from "../Users/Enlist";
+const TodoPostCard = ({ id, todo }) => {
+  const authUserId = useSelector(selectCurrentUser);
 
-const TodoPostCard = ({ id, todoId }) => {
-  const todo = useSelector((state) => selectTodoById(state, id));
+  // const todo = useSelector((state) => selectTodoById(state, id));
+
   console.log(todo);
+  const [imageUrl, setImageUrl] = useState(null);
+  // converting images from buffer to url for valid images
+  useEffect(() => {
+    if (
+      todo &&
+      todo.files &&
+      todo.files[0] &&
+      todo.files[0].data &&
+      todo.files[0].data.data
+    ) {
+      const arrayBuffer = new Uint8Array(todo.files[0].data.data);
+      const blob = new Blob([arrayBuffer], {
+        type: todo.files[0].contentType,
+      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImageUrl(event.target.result);
+      };
+      reader.readAsDataURL(blob);
+    }
+    // console.log("imageUrl:  ", imageUrl);
+  }, [todo]);
   if (!todo) {
     return null; // Handle the case when the todo is not found
   } else {
@@ -21,6 +48,7 @@ const TodoPostCard = ({ id, todoId }) => {
     };
 
     const formattedDate = date.toLocaleString("en-US", options);
+
     return (
       <div key={id} className="rounded-xl bg-post border max-w-md ">
         <div className="flex items-center px-4 py-3">
@@ -28,14 +56,29 @@ const TodoPostCard = ({ id, todoId }) => {
             className="h-8 w-8 rounded-full"
             src="https://picsum.photos/id/1027/150/150"
           />
-          <div className="ml-3 ">
-            <span className="text-sm font-semibold antialiased block leading-tight text-white ">
-              {todo.user}
-            </span>
+          <div className="ml-3 flex flex-col space-y-[2px] ">
+            <div className=" flex flex-row space-x-[100px]">
+              <span className="text-sm font-semibold antialiased block leading-tight text-white ">
+                {todo.user}
+              </span>
+
+              <div className="">
+                {todo.user !== authUserId && (
+                  <FollowUserButton
+                    userID={todo.user}
+                    authUserId={authUserId}
+                  />
+                )}
+              </div>
+            </div>
+
             <span className=" text-xs block text-white">{formattedDate}</span>
           </div>
         </div>
-        <img src="https://picsum.photos/id/244/900/900" />
+        <div className=" text-xl text-white font-semibold ">
+          {todo.description}
+        </div>
+        <img src={imageUrl} alt="file" />
         <div className="flex items-center justify-between mx-4 mt-3 mb-2">
           <div className="flex gap-2">
             <input
@@ -54,15 +97,8 @@ const TodoPostCard = ({ id, todoId }) => {
               value=""
             />
           </div>
-          <div className="flex">
-            <svg fill="#262626" height="24" viewBox="0 0 48 48" width="24">
-              <path d="M43.5 48c-.4 0-.8-.2-1.1-.4L24 29 5.6 47.6c-.4.4-1.1.6-1.6.3-.6-.2-1-.8-1-1.4v-45C3 .7 3.7 0 4.5 0h39c.8 0 1.5.7 1.5 1.5v45c0 .6-.4 1.2-.9 1.4-.2.1-.4.1-.6.1zM24 26c.8 0 1.6.3 2.2.9l15.8 16V3H6v39.9l15.8-16c.6-.6 1.4-.9 2.2-.9z"></path>
-            </svg>
-          </div>
         </div>
-        <div className="font-semibold text-grey text-sm mx-4 mt-2 mb-4">
-          92,372 likes
-        </div>
+        <Enlist />
       </div>
     );
   }

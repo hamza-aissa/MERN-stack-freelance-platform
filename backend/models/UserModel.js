@@ -1,4 +1,23 @@
 const mongoose = require("mongoose");
+const notificationShcema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  time: {
+    type: Date,
+    default: Date.now,
+  },
+});
 const todoSchema = new mongoose.Schema({
   description: {
     type: String,
@@ -15,6 +34,26 @@ const todoSchema = new mongoose.Schema({
   user: {
     type: String,
   },
+  enlisters: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  reactions: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      type: {
+        type: String,
+        enum: ["like", "love", "haha", "wow", "sad", "angry"],
+      },
+    },
+  ],
+  files: [
+    {
+      data: Buffer,
+      contentType: String,
+      filename: String,
+    },
+  ],
   date: {
     type: Date,
     default: Date.now(),
@@ -30,6 +69,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  Following: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  Followers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   refreshToken: [String],
 });
 
